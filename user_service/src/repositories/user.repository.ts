@@ -1,107 +1,106 @@
+import {
+  AddWishListInput,
+  CreateAddressInput,
+  CreateUserInput,
+} from "../custom-type";
 import AddressModel from "../models/address.model";
 import UserModel from "../models/user.model";
 
-interface CreateUserInput {
-  email: string;
-  password: string;
-  phone: string;
-  otp: number;
-}
+export class UserRepository {
+  private userModel: typeof UserModel;
 
-interface CreateAddressInput {
-  street: string;
-  postalCode: number;
-  city: string;
-  country: string;
-}
-
-interface AddWishListInput {
-  _id: string;
-  name: string;
-  price: string;
-}
-
-export const createUser = async (data: CreateUserInput) => {
-  return await UserModel.create(data);
-};
-
-export const getUserByEmail = async (email: string) => {
-  return await UserModel.findOne({ email });
-};
-
-export const getUserById = async (id: string) => {
-  return await UserModel.findOne({ _id: id });
-};
-
-export const getUserByOtpAndEmail = async (otp: string, email: string) => {
-  return await UserModel.find({ otp, email });
-};
-
-export const updateUser = async (id: string, data: any) => {
-  return await UserModel.findByIdAndUpdate(id, data);
-};
-
-export const deleteUser = async (id: string) => {
-  return await UserModel.findByIdAndDelete(id);
-};
-
-export const getAllUsers = async () => {
-  return await UserModel.find();
-};
-
-export const createAddress = async (
-  id: string,
-  createAddressInput: CreateAddressInput
-) => {
-  const user = await getUserById(id);
-
-  if (user) {
-    const newAddress = await AddressModel.create(createAddressInput);
-    user.address.push(newAddress);
-    return await user.save();
+  constructor() {
+    this.userModel = UserModel;
   }
 
-  return null;
-};
-
-export const getWishlist = async (userId: string) => {
-  const user = await UserModel.findById(userId).populate("wishlist");
-  if (user) {
-    return user.wishlist;
+  async createUser(data: CreateUserInput) {
+    return await this.userModel.create(data);
   }
-  return null;
-};
 
-export const addWishlistItem = async (
-  userId: string,
-  data: AddWishListInput
-) => {
-  const user = await UserModel.findById(userId).populate("wishlist");
+  async getUserByEmail(email: string) {
+    return await this.userModel.findOne({ email });
+  }
 
-  if (user) {
-    let wishlist = user.wishlist;
+  async getUserById(id: string) {
+    return await this.userModel.findOne({ _id: id });
+  }
 
-    if (wishlist.length > 0) {
-      let isExist = false;
-      wishlist.map((item) => {
-        if (item._id.toString() === data._id.toString()) {
-          const index = wishlist.indexOf(item);
-          wishlist.splice(index, 1);
-          isExist = true;
-        }
-      });
+  async updateUser(id: string, data: any) {
+    return await this.userModel.findByIdAndUpdate(id, data);
+  }
 
-      if (!isExist) {
-        wishlist.push(data);
-      }
-    } else {
-      wishlist.push(data);
+  async deleteUser(id: string) {
+    return await this.userModel.findByIdAndDelete(id);
+  }
+
+  async getAllUser() {
+    return await this.userModel.find();
+  }
+
+  async createAddress(userId: string, createAddressInput: CreateAddressInput) {
+    const user = await this.getUserById(userId);
+
+    if (user) {
+      const newAddress = await AddressModel.create(createAddressInput);
+      user.address.push(newAddress);
+      return await user.save();
     }
 
-    user.wishlist = wishlist;
-    await user.save();
-    return user.wishlist;
+    return null;
   }
 
-  return null;
-};
+  async deleteAddress(userId: string, addressId: string) {
+    const user = await this.getUserById(userId);
+
+    if (user) {
+      const address = await AddressModel.findByIdAndDelete(addressId);
+
+      if (!address) {
+        return null;
+      }
+
+      const index = user.address.indexOf(address);
+      user.address.splice(index, 1);
+      return await user.save();
+    }
+  }
+
+  async getWishlist(userId: string) {
+    const user = await this.userModel.findById(userId).populate("wishlist");
+    if (user) {
+      return user.wishlist;
+    }
+    return null;
+  }
+
+  async addWishlistItem(userId: string, data: AddWishListInput) {
+    const user = await this.userModel.findById(userId).populate("wishlist");
+
+    if (user) {
+      let wishlist = user.wishlist;
+
+      if (wishlist.length > 0) {
+        let isExist = false;
+        wishlist.map((item) => {
+          if (item._id.toString() === data._id.toString()) {
+            const index = wishlist.indexOf(item);
+            wishlist.splice(index, 1);
+            isExist = true;
+          }
+        });
+
+        if (!isExist) {
+          wishlist.push(data);
+        }
+      } else {
+        wishlist.push(data);
+      }
+
+      user.wishlist = wishlist;
+      await user.save();
+      return user.wishlist;
+    }
+
+    return null;
+  }
+}

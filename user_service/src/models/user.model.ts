@@ -27,7 +27,7 @@ interface User extends Document {
   email: string;
   password: string;
   phone: string;
-  otp: number;
+  name: string;
   cart: Cart[];
   wishlist: Item[];
   orders: Order[];
@@ -39,8 +39,8 @@ const userSchema = new Schema<User>(
   {
     email: { type: String, required: true },
     password: { type: String, required: true },
+    name: { type: String, required: true },
     phone: { type: String, required: true },
-    otp: { type: Number, required: true },
     address: [{ type: Schema.Types.ObjectId, ref: "Address", require: true }],
     cart: [
       {
