@@ -4,7 +4,9 @@ import { auth } from "../middlewares/auth";
 import { validationResource } from "../middlewares/validation-resource";
 import {
   createProductSchema,
+  getProductSchema,
   getProductsQuerySchema,
+  updateProductSchema,
 } from "../dtos/product.dto";
 
 const router = express.Router();
@@ -22,6 +24,24 @@ router.get(
   // auth,
   validationResource(getProductsQuerySchema),
   productController.getProducts
+);
+router.get(
+  "/:productId",
+  // auth,
+  validationResource(getProductSchema),
+  productController.getProduct
+);
+router.patch(
+  "/:productId",
+  // auth,
+  validationResource(updateProductSchema),
+  productController.updateProduct
+);
+router.delete(
+  "/:productId",
+  // auth,
+  validationResource(getProductSchema),
+  productController.deleteProduct
 );
 
 export default router;
