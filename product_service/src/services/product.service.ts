@@ -1,5 +1,5 @@
 import { ParsedOptions } from "qs-to-mongo/lib/query/options-to-mongo";
-import { CreateProductInput } from "../custom-type";
+import { CreateProductInput, UpdateProductInput } from "../custom-type";
 import { ProductRepository } from "../repositories/product.repository";
 import { ApiError } from "../utils/api-error";
 import { formateData } from "../utils/formate-data";
@@ -87,6 +87,44 @@ export class ProductService {
         "fetch product by id successfully",
         product
       );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateProduct(productId: string, data: UpdateProductInput) {
+    try {
+      const product = await this.productRepository.getProductById(productId);
+
+      if (!product) {
+        throw new ApiError(false, 404, "product not found");
+      }
+
+      const updatedProduct = await this.productRepository.updateProduct(
+        product._id.toString(),
+        data
+      );
+
+      return formateData(
+        true,
+        200,
+        "update product successfully",
+        updatedProduct
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async deleteProduct(productId: string) {
+    try {
+      const product = await this.productRepository.deleteProduct(productId);
+
+      if (!product) {
+        throw new ApiError(false, 404, "product not found");
+      }
+
+      return formateData(true, 200, "delete product successfully", null);
     } catch (error) {
       throw error;
     }

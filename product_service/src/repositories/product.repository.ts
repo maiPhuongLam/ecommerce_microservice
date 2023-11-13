@@ -45,8 +45,6 @@ export class ProductRepository {
 
   async updateProduct(productId: string, data: UpdateProductInput) {
     const product = await this.productModel.findByIdAndUpdate(productId, data);
-    if (!product) return null;
-    await product.save();
     return product;
   }
 
