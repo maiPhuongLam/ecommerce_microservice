@@ -10,7 +10,7 @@ if (process.env.NODE_ENV !== "prod") {
 export default {
   amqplib: {
     message_broker_url: process.env.MESSAGE_BROKER_URL!,
-    exchange_name: "FOOTBALL_STORE_MICROSERVICE",
+    exchange_name: "FOOTBALL_STORE",
     customer_binding_key: "USER_SERVICE",
     queue_name: "USER_QUEUE",
   },

@@ -14,7 +14,12 @@ interface Cart {
 interface Item {
   _id: string;
   name: string;
-  price: string;
+  description: string;
+  unit: number;
+  price: number;
+  category: string;
+  image: string;
+  image_detail?: string;
 }
 
 interface Order {
@@ -59,7 +64,15 @@ const userSchema = new Schema<User>(
       {
         _id: { type: String, required: true },
         name: { type: String },
+        description: { type: String },
+        unit: { type: Number },
+        category: {
+          type: String,
+          enum: ["Jerseys", "Footwear", "Accessories", "Equipment", "Other"],
+        },
         price: { type: Number },
+        image: { type: String },
+        image_detail: { type: String },
       },
     ],
     orders: [

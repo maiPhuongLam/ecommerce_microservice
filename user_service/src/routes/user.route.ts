@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Express } from "express";
 import { UserController } from "../controllers/user.controller";
 import { validationResource } from "../middlewares/validation-resource";
 import {
@@ -8,35 +8,35 @@ import {
 } from "../dtos/user.dto";
 import { createAddressSchema, deleteAddressSchema } from "../dtos/address.dto";
 import { auth } from "../middlewares/auth";
+import { Channel } from "amqplib";
+export default (app: Express, channel: Channel) => {
+  const userController = new UserController(channel);
+  app.post("/login", validationResource(loginSchema), userController.login);
+  app.post(
+    "/register",
+    validationResource(registerSchema),
+    userController.register
+  );
+  app.post(
+    "/address",
+    auth,
+    validationResource(createAddressSchema),
+    userController.createAddress
+  );
+  app.delete(
+    "/address/:addressId",
+    auth,
+    validationResource(deleteAddressSchema),
+    userController.deleteAddress
+  );
+  app.get(
+    "/:userId",
+    auth,
+    validationResource(getProfileSchema),
+    userController.getProfile
+  );
+  app.get("/order-details");
+  app.get("/wishlist");
+};
 
-const router = express.Router();
-const userController = new UserController();
-
-router.post("/login", validationResource(loginSchema), userController.login);
-router.post(
-  "/register",
-  validationResource(registerSchema),
-  userController.register
-);
-router.post(
-  "/address",
-  auth,
-  validationResource(createAddressSchema),
-  userController.createAddress
-);
-router.delete(
-  "/address/:addressId",
-  auth,
-  validationResource(deleteAddressSchema),
-  userController.deleteAddress
-);
-router.get(
-  "/:userId",
-  auth,
-  validationResource(getProfileSchema),
-  userController.getProfile
-);
-router.get("/order-details");
-router.get("/wishlist");
-
-export default router;
+// export default app;

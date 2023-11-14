@@ -80,24 +80,32 @@ export class UserRepository {
       let wishlist = user.wishlist;
 
       if (wishlist.length > 0) {
+        console.log(wishlist.length);
+
         let isExist = false;
-        wishlist.map((item) => {
+        wishlist.map(async (item) => {
           if (item._id.toString() === data._id.toString()) {
-            const index = wishlist.indexOf(item);
-            wishlist.splice(index, 1);
+            await this.userModel.findByIdAndUpdate(userId, {
+              $pull: {
+                wishlist: {
+                  _id: item._id.toString(),
+                },
+              },
+            });
             isExist = true;
           }
         });
 
         if (!isExist) {
-          wishlist.push(data);
+          await this.userModel.findByIdAndUpdate(userId, {
+            $push: { wishlist: data },
+          });
         }
       } else {
-        wishlist.push(data);
+        await this.userModel.findByIdAndUpdate(userId, {
+          $push: { wishlist: data },
+        });
       }
-
-      user.wishlist = wishlist;
-      await user.save();
       return user.wishlist;
     }
 

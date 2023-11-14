@@ -1,5 +1,10 @@
+import { Types } from "mongoose";
 import config from "../config";
-import { CreateAddressInput, CreateUserInput } from "../custom-type";
+import {
+  AddWishListInput,
+  CreateAddressInput,
+  CreateUserInput,
+} from "../custom-type";
 import { UserRepository } from "../repositories/user.repository";
 import { ApiError } from "../utils/api-error";
 import { generateToken } from "../utils/auth-token";
@@ -88,6 +93,51 @@ export class UserService {
       return formateData(true, 200, "Fetch Profile success", userProfile);
     } catch (error) {
       throw error;
+    }
+  }
+
+  async addToWishlist(customerId: string, product: AddWishListInput) {
+    try {
+      const wishlistResult = await this.userRepository.addWishlistItem(
+        customerId,
+        product
+      );
+      if (!wishlistResult) {
+        throw new ApiError(false, 400, "add item to wishlist fail");
+      }
+      return formateData(
+        true,
+        200,
+        "add item to wishlist successfully",
+        wishlistResult
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async subscribeEvents(payload: string) {
+    const { event, data }: { event: string; data: any } = JSON.parse(payload);
+    switch (event) {
+      case "ADD_TO_WISHLIST":
+        this.addToWishlist(data.userId, data.product);
+        break;
+      case "REMOVE_FROM_WISHLIST":
+        this.addToWishlist(data.userId, data.product);
+        break;
+      // case "ADD_TO_CART":
+      //   this.ManageCart(userId, product, qty, false);
+      //   break;
+      // case "REMOVE_FROM_CART":
+      //   this.ManageCart(userId, product, qty, true);
+      //   break;
+      // case "CREATE_ORDER":
+      //   this.ManageOrder(userId, order);
+      //   break;
+      case "TEST":
+        console.log("TEST LISTEN EVENT");
+      default:
+        break;
     }
   }
 }

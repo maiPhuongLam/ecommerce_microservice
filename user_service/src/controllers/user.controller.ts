@@ -2,12 +2,14 @@ import { NextFunction, Request, Response } from "express";
 import { UserService } from "../services/user.service";
 import { GetProfileDto, LoginDto, RegisterDto } from "../dtos/user.dto";
 import { CreateAddressDto, DelteAddressDto } from "../dtos/address.dto";
-import { generateToken } from "../utils/auth-token";
+import { connect, consume } from "../utils/message-broker";
+import { Channel } from "amqplib";
 
 export class UserController {
   private userService: UserService;
-  constructor() {
+  constructor(private channel: Channel) {
     this.userService = new UserService();
+    consume(this.channel, this.userService);
     this.register = this.register.bind(this);
     this.login = this.login.bind(this);
     this.createAddress = this.createAddress.bind(this);

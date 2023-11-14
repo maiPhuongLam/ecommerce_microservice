@@ -15,5 +15,10 @@ export type CreateAddressInput = {
 export type AddWishListInput = {
   _id: string;
   name: string;
-  price: string;
+  description: string;
+  unit: number;
+  price: number;
+  category: string;
+  image: string;
+  image_detail?: string;
 };
