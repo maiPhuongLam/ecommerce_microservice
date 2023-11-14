@@ -1,21 +1,20 @@
 import express from "express";
 import config from "./config";
 import connectDb from "./connect-db";
-import { MessageBroker } from "./utils/message-broker";
 import bodyParser from "body-parser";
 import cors from "cors";
 import errorHandler from "./middlewares/error-handler";
 import productRoute from "./routes/product.route";
+import { connect } from "./utils/message-broker";
 const port = config.port || 3001;
 
 const start = async () => {
   const app = express();
   await connectDb();
-  await new MessageBroker().connect(config.amqplib.message_broker_url);
-
+  const channel = await connect();
   app.use(express.json());
   app.use(cors());
-  app.use("/products", productRoute);
+  productRoute(app, channel);
   app.use(errorHandler);
 
   app

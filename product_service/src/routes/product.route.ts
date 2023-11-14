@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Express } from "express";
 import { ProductController } from "../controllers/product.controller";
 import { auth } from "../middlewares/auth";
 import { validationResource } from "../middlewares/validation-resource";
@@ -8,40 +8,47 @@ import {
   getProductsQuerySchema,
   updateProductSchema,
 } from "../dtos/product.dto";
+import { Channel } from "amqplib";
 
-const router = express.Router();
+export default (app: Express, channel: Channel) => {
+  const productController = new ProductController(channel);
 
-const productController = new ProductController();
+  app.post(
+    "/",
+    auth,
+    validationResource(createProductSchema),
+    productController.createProduct
+  );
+  app.get(
+    "/",
+    // auth,
+    validationResource(getProductsQuerySchema),
+    productController.getProducts
+  );
+  app.get(
+    "/:productId",
+    auth,
+    validationResource(getProductSchema),
+    productController.getProduct
+  );
+  app.patch(
+    "/:productId",
+    auth,
+    validationResource(updateProductSchema),
+    productController.updateProduct
+  );
+  app.delete(
+    "/:productId",
+    auth,
+    validationResource(getProductSchema),
+    productController.deleteProduct
+  );
+  app.put(
+    "/wishlist/:productId",
+    auth,
+    validationResource(getProductSchema),
+    productController.addProductToWishlist
+  );
+};
 
-router.post(
-  "/",
-  // auth,
-  validationResource(createProductSchema),
-  productController.createProduct
-);
-router.get(
-  "/",
-  // auth,
-  validationResource(getProductsQuerySchema),
-  productController.getProducts
-);
-router.get(
-  "/:productId",
-  // auth,
-  validationResource(getProductSchema),
-  productController.getProduct
-);
-router.patch(
-  "/:productId",
-  // auth,
-  validationResource(updateProductSchema),
-  productController.updateProduct
-);
-router.delete(
-  "/:productId",
-  // auth,
-  validationResource(getProductSchema),
-  productController.deleteProduct
-);
-
-export default router;
+// export default app;
