@@ -8,6 +8,12 @@ if (process.env.NODE_ENV !== "prod") {
 }
 
 export default {
+  amqplib: {
+    message_broker_url: process.env.MESSAGE_BROKER_URL!,
+    exchange_name: "FOOTBALL_STORE",
+    order_binding_key: "ORDER_SERVICE",
+    queue_name: "ORDER_QUEUE",
+  },
   db_url: process.env.MONGODB_URI!,
   cloudinary: {
     cloud_name: process.env.CLOUD_NAME!,
