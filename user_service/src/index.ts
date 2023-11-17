@@ -10,8 +10,8 @@ const port = config.port || 3001;
 
 const start = async () => {
   const app = express();
-  const channel = await connect();
   await connectDb();
+  const channel = await connect();
   app.use(express.json());
   app.use(cors());
 
@@ -24,6 +24,7 @@ const start = async () => {
       console.log(`Server is running on port ${port}`);
     })
     .on("error", (err) => {
+      console.log("ERROR");
       console.log(err);
       process.exit();
     });

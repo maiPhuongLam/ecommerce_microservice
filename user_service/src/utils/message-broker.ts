@@ -29,18 +29,19 @@ export const publish = async (
 };
 
 export const consume = async (channel: amqp.Channel, service: UserService) => {
+  console.log("START CONSUME");
   const appQueue = await channel.assertQueue(config.amqplib.queue_name);
 
   channel.bindQueue(
     appQueue.queue,
     config.amqplib.exchange_name,
-    config.amqplib.customer_binding_key
+    config.amqplib.user_binding_key
   );
 
   channel.consume(appQueue.queue, (data) => {
     if (data) {
       service.subscribeEvents(data.content.toString());
-      channel?.ack;
+      channel?.ack(data);
     } else {
       console.log("Consume fail");
     }

@@ -75,13 +75,11 @@ export class UserRepository {
 
   async addWishlistItem(userId: string, data: AddWishListInput) {
     const user = await this.userModel.findById(userId).populate("wishlist");
-
+    console.log(user);
     if (user) {
       let wishlist = user.wishlist;
-
+      console.log(wishlist);
       if (wishlist.length > 0) {
-        console.log(wishlist.length);
-
         let isExist = false;
         wishlist.map(async (item) => {
           if (item._id.toString() === data._id.toString()) {
@@ -110,5 +108,47 @@ export class UserRepository {
     }
 
     return null;
+  }
+
+  async updateCartItems(
+    userId: string,
+    product: AddWishListInput,
+    qty: number,
+    isRemove: boolean
+  ) {
+    const user = await this.userModel.findById(userId).populate("cart");
+    console.log(userId);
+    if (user) {
+      const cartItem = {
+        product,
+        unit: qty,
+      };
+
+      const cartItems = user.cart;
+
+      if (cartItems.length > 0) {
+        let isExist = false;
+        cartItems.map((item) => {
+          if (item.product._id.toString() === product._id.toString()) {
+            if (isRemove) {
+              cartItems.slice(cartItems.indexOf(item));
+            } else {
+              item.unit = item.unit + qty;
+            }
+            isExist = true;
+          }
+        });
+
+        if (!isExist) {
+          cartItems.push(cartItem);
+        }
+      } else {
+        cartItems.push(cartItem);
+      }
+      user.cart = cartItems;
+      return await user.save();
+    } else {
+      return null;
+    }
   }
 }

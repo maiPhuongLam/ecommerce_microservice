@@ -1,17 +1,7 @@
 import mongoose, { Types } from "mongoose";
 import { Address } from "./address.model";
 
-interface Cart {
-  product: {
-    _id: string;
-    name: string;
-    price: number;
-    category: string;
-  };
-  unit: string;
-}
-
-interface Item {
+export interface Product {
   _id: string;
   name: string;
   description: string;
@@ -21,7 +11,10 @@ interface Item {
   image: string;
   image_detail?: string;
 }
-
+interface Cart {
+  product: Product;
+  unit: number;
+}
 interface Order {
   _id: string;
   amount: number;
@@ -34,7 +27,7 @@ interface User extends Document {
   phone: string;
   name: string;
   cart: Cart[];
-  wishlist: Item[];
+  wishlist: Product[];
   orders: Order[];
   address: Types.ObjectId[] & Address[];
 }
@@ -53,6 +46,16 @@ const userSchema = new Schema<User>(
           _id: { type: String, required: true },
           name: { type: String },
           price: { type: Number },
+          description: {
+            type: String,
+          },
+          unit: { type: Number },
+          category: {
+            type: String,
+            enum: ["Jerseys", "Footwear", "Accessories", "Equipment", "Other"],
+          },
+          image: { type: String },
+          image_detail: { type: String },
         },
         unit: {
           type: Number,

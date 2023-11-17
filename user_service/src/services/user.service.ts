@@ -1,10 +1,10 @@
-import { Types } from "mongoose";
 import config from "../config";
 import {
   AddWishListInput,
   CreateAddressInput,
   CreateUserInput,
 } from "../custom-type";
+import { Product } from "../models/user.model";
 import { UserRepository } from "../repositories/user.repository";
 import { ApiError } from "../utils/api-error";
 import { generateToken } from "../utils/auth-token";
@@ -116,21 +116,52 @@ export class UserService {
     }
   }
 
+  async manageCart(
+    userId: string,
+    product: Product,
+    qty: number,
+    isRemove: boolean
+  ) {
+    try {
+      const cartResult = await this.userRepository.updateCartItems(
+        userId,
+        product,
+        qty,
+        isRemove
+      );
+      if (!cartResult) {
+        throw new ApiError(false, 400, "Add item to cart fail");
+      }
+      return formateData(true, 200, "add item to cart sucessfully", cartResult);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // async ManageOrder(customerId, order) {
+  //   try {
+  //     const orderResult = await this.repository.AddOrderToProfile(
+  //       customerId,
+  //       order
+  //     );
+  //     return FormateData(orderResult);
+  //   } catch (err) {
+  //     throw new APIError("Data Not found", err);
+  //   }
+  // }
+
   async subscribeEvents(payload: string) {
     const { event, data }: { event: string; data: any } = JSON.parse(payload);
     switch (event) {
-      case "ADD_TO_WISHLIST":
+      case "UPDATE_WISHLIST":
         this.addToWishlist(data.userId, data.product);
         break;
-      case "REMOVE_FROM_WISHLIST":
-        this.addToWishlist(data.userId, data.product);
+      case "ADD_TO_CART":
+        this.manageCart(data.userId, data.product, data.qty, false);
         break;
-      // case "ADD_TO_CART":
-      //   this.ManageCart(userId, product, qty, false);
-      //   break;
-      // case "REMOVE_FROM_CART":
-      //   this.ManageCart(userId, product, qty, true);
-      //   break;
+      case "REMOVE_FROM_CART":
+        this.manageCart(data.userId, data.product, data.qty, true);
+        break;
       // case "CREATE_ORDER":
       //   this.ManageOrder(userId, order);
       //   break;

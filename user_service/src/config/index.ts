@@ -11,7 +11,7 @@ export default {
   amqplib: {
     message_broker_url: process.env.MESSAGE_BROKER_URL!,
     exchange_name: "FOOTBALL_STORE",
-    customer_binding_key: "USER_SERVICE",
+    user_binding_key: "USER_SERVICE",
     queue_name: "USER_QUEUE",
   },
   db_url: process.env.MONGODB_URI!,
