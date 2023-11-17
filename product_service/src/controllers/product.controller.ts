@@ -1,4 +1,5 @@
 import {
+  AddProductTocart,
   CreateProductDto,
   GetProductDto,
   GetProductQueryDto,
@@ -18,7 +19,10 @@ export class ProductController {
     this.getProduct = this.getProduct.bind(this);
     this.updateProduct = this.updateProduct.bind(this);
     this.deleteProduct = this.deleteProduct.bind(this);
-    this.addProductToWishlist = this.addProductToWishlist.bind(this);
+    this.addOrRemoveProductToWishlist =
+      this.addOrRemoveProductToWishlist.bind(this);
+    this.addProductToCart = this.addProductToCart.bind(this);
+    this.removeItemFromCart = this.removeItemFromCart.bind(this);
   }
 
   async createProduct(req: Request, res: Response, next: NextFunction) {
@@ -72,18 +76,82 @@ export class ProductController {
     }
   }
 
-  async addProductToWishlist(req: Request, res: Response, next: NextFunction) {
+  async addOrRemoveProductToWishlist(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       const { productId } = <GetProductDto["params"]>req.params;
       const userId = req.userId;
       const result = await this.productService.getProductById(productId);
       const payload = {
-        event: "ADD_TO_WISHLIST",
+        event: "UPDATE_WISHLIST",
         data: { userId, product: result.data },
       };
       publish(
         this.channel,
-        config.amqplib.customer_binding_key,
+        config.amqplib.user_binding_key,
+        JSON.stringify(payload)
+      );
+      return res.status(result.status).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async addProductToCart(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { productId } = <AddProductTocart["params"]>req.params;
+      const { qty } = <AddProductTocart["body"]>req.body;
+      const result = await this.productService.getProductById(productId);
+      const payload = {
+        event: "ADD_TO_CART",
+        data: {
+          userId: req.userId,
+          product: result.data,
+          qty,
+        },
+      };
+      publish(
+        this.channel,
+        config.amqplib.order_binding_key,
+        JSON.stringify(payload)
+      );
+
+      publish(
+        this.channel,
+        config.amqplib.user_binding_key,
+        JSON.stringify(payload)
+      );
+      return res.status(result.status).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async removeItemFromCart(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { productId } = <AddProductTocart["params"]>req.params;
+      const { qty } = <AddProductTocart["body"]>req.body;
+      const result = await this.productService.getProductById(productId);
+      const payload = {
+        event: "REMOVE_FROM_CART",
+        data: {
+          userId: req.userId,
+          product: result.data,
+          qty,
+        },
+      };
+      publish(
+        this.channel,
+        config.amqplib.order_binding_key,
+        JSON.stringify(payload)
+      );
+
+      publish(
+        this.channel,
+        config.amqplib.user_binding_key,
         JSON.stringify(payload)
       );
       return res.status(result.status).json(result);

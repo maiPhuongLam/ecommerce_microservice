@@ -6,6 +6,7 @@ const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
+  console.log(error);
   const message = error.message || "Something went wrong";
   const status = error.status || 500;
   const success = error.success || false;

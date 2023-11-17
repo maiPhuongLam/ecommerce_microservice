@@ -45,8 +45,9 @@ export class ProductRepository {
 
   async updateProduct(productId: string, data: UpdateProductInput) {
     const product = await this.productModel.findByIdAndUpdate(productId, data);
-    await product?.save();
-    return product;
+    if (product) {
+      return await this.productModel.findById(productId);
+    }
   }
 
   async deleteProduct(productId: string) {

@@ -73,17 +73,29 @@ const getProductsQuerySchema = object({
   }),
 });
 
+const addProductToCartSchema = object({
+  params,
+  body: object({
+    qty: number({
+      required_error: "qty is required",
+    }),
+  }),
+});
+
 type CreateProductDto = TypeOf<typeof createProductSchema>;
 type UpdateProductDto = TypeOf<typeof updateProductSchema>;
 type GetProductDto = TypeOf<typeof getProductSchema>;
 type GetProductQueryDto = TypeOf<typeof getProductsQuerySchema>;
+type AddProductTocart = TypeOf<typeof addProductToCartSchema>;
 export {
   CreateProductDto,
   UpdateProductDto,
   GetProductDto,
   GetProductQueryDto,
+  AddProductTocart,
   createProductSchema,
   updateProductSchema,
   getProductSchema,
   getProductsQuerySchema,
+  addProductToCartSchema,
 };

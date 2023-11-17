@@ -17,6 +17,7 @@ export const publish = async (
   message: string
 ) => {
   try {
+    console.log("START PUBLISH");
     await channel.publish(
       config.amqplib.exchange_name,
       binding_key,

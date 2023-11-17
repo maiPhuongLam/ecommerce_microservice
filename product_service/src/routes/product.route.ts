@@ -3,6 +3,7 @@ import { ProductController } from "../controllers/product.controller";
 import { auth } from "../middlewares/auth";
 import { validationResource } from "../middlewares/validation-resource";
 import {
+  addProductToCartSchema,
   createProductSchema,
   getProductSchema,
   getProductsQuerySchema,
@@ -47,7 +48,19 @@ export default (app: Express, channel: Channel) => {
     "/wishlist/:productId",
     auth,
     validationResource(getProductSchema),
-    productController.addProductToWishlist
+    productController.addOrRemoveProductToWishlist
+  );
+  app.put(
+    "/cart/:productId",
+    auth,
+    validationResource(addProductToCartSchema),
+    productController.addProductToCart
+  );
+  app.delete(
+    "/cart/:productId",
+    auth,
+    validationResource(addProductToCartSchema),
+    productController.removeItemFromCart
   );
 };
 
