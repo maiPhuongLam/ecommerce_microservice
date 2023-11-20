@@ -28,6 +28,8 @@ services:
     volumes:
       - .:/app
       - /app/product_service/node_modules
+    env_file:
+      - ./product_service/.env
 
   order_service:
     build:
@@ -43,6 +45,8 @@ services:
     volumes:
       - .:/app
       - /app/order_service/node_modules
+    env_file:
+      - ./order_service/.env
 
   user_service:
     build:
@@ -58,6 +62,8 @@ services:
     volumes:
       - .:/app/
       - /app/user_service/node_modules
+    env_file:
+      - ./user_service/.env
 
   nginx-proxy:
     build:

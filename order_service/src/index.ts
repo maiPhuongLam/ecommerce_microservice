@@ -12,7 +12,6 @@ const start = async () => {
   const app = express();
   await connectDb();
   const channel = await connect();
-  console.log(channel);
   app.use(express.json());
   app.use(cors());
 
