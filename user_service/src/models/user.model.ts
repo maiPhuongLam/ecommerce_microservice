@@ -15,7 +15,7 @@ interface Cart {
   product: Product;
   unit: number;
 }
-interface Order {
+export interface Order {
   _id: string;
   amount: number;
   date: Date;

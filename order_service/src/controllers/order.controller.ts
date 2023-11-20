@@ -3,6 +3,7 @@ import { OrderService } from "../services/order.service";
 import { consume, publish } from "../utils/message-broker";
 import { Channel } from "amqplib";
 import config from "../config";
+import { CreateOrderDto } from "../dtos/order.dto";
 
 export class OrderController {
   private orderService: OrderService;
@@ -18,7 +19,7 @@ export class OrderController {
   async createOrder(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.userId;
-      const { txnNumber } = req.body;
+      const { txnNumber } = <CreateOrderDto["body"]>req.body;
       const result = await this.orderService.placeOrder(userId, txnNumber);
       const payload = {
         event: "CREATE_ORDER",
@@ -29,7 +30,7 @@ export class OrderController {
       };
       publish(
         this.channel,
-        config.amqplib.order_binding_key,
+        config.amqplib.user_binding_key,
         JSON.stringify(payload)
       );
       return res.status(result.status).json(result);

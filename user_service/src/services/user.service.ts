@@ -4,7 +4,7 @@ import {
   CreateAddressInput,
   CreateUserInput,
 } from "../custom-type";
-import { Product } from "../models/user.model";
+import { Order, Product } from "../models/user.model";
 import { UserRepository } from "../repositories/user.repository";
 import { ApiError } from "../utils/api-error";
 import { generateToken } from "../utils/auth-token";
@@ -138,17 +138,17 @@ export class UserService {
     }
   }
 
-  // async ManageOrder(customerId, order) {
-  //   try {
-  //     const orderResult = await this.repository.AddOrderToProfile(
-  //       customerId,
-  //       order
-  //     );
-  //     return FormateData(orderResult);
-  //   } catch (err) {
-  //     throw new APIError("Data Not found", err);
-  //   }
-  // }
+  async manageOrder(userId: string, order: Order) {
+    try {
+      const orderResult = await this.userRepository.createOrder(userId, order);
+      if (!orderResult) {
+        throw new ApiError(false, 400, "create order fail");
+      }
+      return formateData(true, 200, "create order successfully", orderResult);
+    } catch (error) {
+      throw error;
+    }
+  }
 
   async subscribeEvents(payload: string) {
     const { event, data }: { event: string; data: any } = JSON.parse(payload);
@@ -162,9 +162,9 @@ export class UserService {
       case "REMOVE_FROM_CART":
         this.manageCart(data.userId, data.product, data.qty, true);
         break;
-      // case "CREATE_ORDER":
-      //   this.ManageOrder(userId, order);
-      //   break;
+      case "CREATE_ORDER":
+        this.manageOrder(data.userId, data.order);
+        break;
       case "TEST":
         console.log("TEST LISTEN EVENT");
       default:

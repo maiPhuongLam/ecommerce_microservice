@@ -4,7 +4,7 @@ import {
   CreateUserInput,
 } from "../custom-type";
 import AddressModel from "../models/address.model";
-import UserModel from "../models/user.model";
+import UserModel, { Order } from "../models/user.model";
 
 export class UserRepository {
   private userModel: typeof UserModel;
@@ -117,7 +117,6 @@ export class UserRepository {
     isRemove: boolean
   ) {
     const user = await this.userModel.findById(userId).populate("cart");
-    console.log(userId);
     if (user) {
       const cartItem = {
         product,
@@ -131,7 +130,7 @@ export class UserRepository {
         cartItems.map((item) => {
           if (item.product._id.toString() === product._id.toString()) {
             if (isRemove) {
-              cartItems.slice(cartItems.indexOf(item));
+              cartItems.splice(cartItems.indexOf(item), 1);
             } else {
               item.unit = item.unit + qty;
             }
@@ -147,6 +146,22 @@ export class UserRepository {
       }
       user.cart = cartItems;
       return await user.save();
+    } else {
+      return null;
+    }
+  }
+
+  async createOrder(userId: string, order: Order) {
+    const user = await this.userModel.findById(userId).populate("orders");
+
+    if (user) {
+      if (user.orders === undefined) {
+        user.orders = [];
+      }
+      user.orders.push(order);
+      user.cart = [];
+      const userResult = await user.save();
+      return userResult;
     } else {
       return null;
     }
