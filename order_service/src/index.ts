@@ -5,7 +5,7 @@ import errorHandler from "./middlewares/error-handler";
 import bodyParser from "body-parser";
 import cors from "cors";
 import { connect } from "./utils/message-broker";
-import orderRoute from "./routes/order.route";
+import { OrderRouter } from "./routes/order.route";
 const port = config.port || 3001;
 
 const start = async () => {
@@ -15,8 +15,9 @@ const start = async () => {
   app.use(express.json());
   app.use(cors());
 
-  orderRoute(app, channel);
+  const orderRouter = new OrderRouter(channel);
 
+  app.use("/", orderRouter.router);
   app.use(errorHandler);
 
   app

@@ -4,7 +4,7 @@ import connectDb from "./connect-db";
 import bodyParser from "body-parser";
 import cors from "cors";
 import errorHandler from "./middlewares/error-handler";
-import productRoute from "./routes/product.route";
+import { ProductRouter } from "./routes/product.route";
 import { connect } from "./utils/message-broker";
 const port = config.port || 3001;
 
@@ -14,7 +14,10 @@ const start = async () => {
   const channel = await connect();
   app.use(express.json());
   app.use(cors());
-  productRoute(app, channel);
+
+  const productRouter = new ProductRouter(channel);
+
+  app.use("/", productRouter.router);
   app.use(errorHandler);
 
   app
