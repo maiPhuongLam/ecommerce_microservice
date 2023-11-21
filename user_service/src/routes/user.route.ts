@@ -9,34 +9,53 @@ import {
 import { createAddressSchema, deleteAddressSchema } from "../dtos/address.dto";
 import { auth } from "../middlewares/auth";
 import { Channel } from "amqplib";
-export default (app: Express, channel: Channel) => {
-  const userController = new UserController(channel);
-  app.post("/login", validationResource(loginSchema), userController.login);
-  app.post(
-    "/register",
-    validationResource(registerSchema),
-    userController.register
-  );
-  app.post(
-    "/address",
-    auth,
-    validationResource(createAddressSchema),
-    userController.createAddress
-  );
-  app.delete(
-    "/address/:addressId",
-    auth,
-    validationResource(deleteAddressSchema),
-    userController.deleteAddress
-  );
-  app.get(
-    "/:userId",
-    auth,
-    validationResource(getProfileSchema),
-    userController.getProfile
-  );
-  app.get("/order-details");
-  app.get("/wishlist");
-};
 
-// export default app;
+import { Router } from "express";
+
+export class UserRouter {
+  public router: Router;
+  private userController: UserController;
+
+  constructor(chanel: Channel) {
+    this.router = Router();
+    this.userController = new UserController(chanel);
+    this.loginRouter();
+    this.registerRouter();
+    this.postAddressRouter();
+    this.getUserRouter();
+  }
+
+  private loginRouter() {
+    this.router.post(
+      "/login",
+      validationResource(loginSchema),
+      this.userController.login
+    );
+  }
+
+  private registerRouter() {
+    this.router.post(
+      "/register",
+      validationResource(registerSchema),
+      this.userController.register
+    );
+  }
+
+  private postAddressRouter() {
+    this.router.delete(
+      "/address/:addressId",
+      auth,
+      validationResource(deleteAddressSchema),
+      this.userController.deleteAddress
+    );
+  }
+
+  private getUserRouter() {
+    this.router.get(
+      "/:userId",
+      auth,
+      validationResource(getProfileSchema),
+      this.userController.getProfile
+    );
+  }
+}
