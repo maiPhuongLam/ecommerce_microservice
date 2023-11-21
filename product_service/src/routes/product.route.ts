@@ -10,59 +10,7 @@ import {
   updateProductSchema,
 } from "../dtos/product.dto";
 import { Channel } from "amqplib";
-
-export default (app: Express, channel: Channel) => {
-  const productController = new ProductController(channel);
-
-  app.post(
-    "/",
-    auth,
-    validationResource(createProductSchema),
-    productController.createProduct
-  );
-  app.get(
-    "/",
-    // auth,
-    validationResource(getProductsQuerySchema),
-    productController.getProducts
-  );
-  app.get(
-    "/:productId",
-    auth,
-    validationResource(getProductSchema),
-    productController.getProduct
-  );
-  app.patch(
-    "/:productId",
-    auth,
-    validationResource(updateProductSchema),
-    productController.updateProduct
-  );
-  app.delete(
-    "/:productId",
-    auth,
-    validationResource(getProductSchema),
-    productController.deleteProduct
-  );
-  app.put(
-    "/wishlist/:productId",
-    auth,
-    validationResource(getProductSchema),
-    productController.addOrRemoveProductToWishlist
-  );
-  app.put(
-    "/cart/:productId",
-    auth,
-    validationResource(addProductToCartSchema),
-    productController.addProductToCart
-  );
-  app.delete(
-    "/cart/:productId",
-    auth,
-    validationResource(addProductToCartSchema),
-    productController.removeItemFromCart
-  );
-};
+import { adminRole } from "../middlewares/roles";
 
 export class ProductRouter {
   public router: Router;
@@ -85,6 +33,7 @@ export class ProductRouter {
     this.router.post(
       "/",
       auth,
+      adminRole,
       validationResource(createProductSchema),
       this.productController.createProduct
     );
@@ -112,6 +61,7 @@ export class ProductRouter {
     this.router.patch(
       "/:productId",
       auth,
+      adminRole,
       validationResource(updateProductSchema),
       this.productController.updateProduct
     );
@@ -121,6 +71,7 @@ export class ProductRouter {
     this.router.delete(
       "/:productId",
       auth,
+      adminRole,
       validationResource(getProductSchema),
       this.productController.deleteProduct
     );

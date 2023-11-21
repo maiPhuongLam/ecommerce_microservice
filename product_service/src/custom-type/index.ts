@@ -15,3 +15,8 @@ export type UpdateProductInput = {
   image?: string;
   image_detail?: string;
 };
+
+export enum Role {
+  ADMIN = "admin",
+  CUSTOMER = "customer",
+}

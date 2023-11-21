@@ -22,3 +22,8 @@ export type AddWishListInput = {
   image: string;
   image_detail?: string;
 };
+
+export enum Role {
+  ADMIN = "admin",
+  CUSOMER = "customer",
+}

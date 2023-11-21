@@ -1,4 +1,5 @@
 import { TypeOf, date, number, object, string, z } from "zod";
+import { Role } from "../custom-type";
 
 const loginSchema = object({
   body: object({
@@ -27,6 +28,7 @@ const registerSchema = object({
     }).regex(/(84|0[3|5|7|8|9])+([0-9]{8})\b/g, {
       message: "phone is invalid",
     }),
+    role: z.nativeEnum(Role).optional(),
   }),
 });
 

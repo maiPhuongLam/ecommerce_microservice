@@ -1,5 +1,6 @@
 import mongoose, { Types } from "mongoose";
 import { Address } from "./address.model";
+import { Role } from "../custom-type";
 
 export interface Product {
   _id: string;
@@ -26,6 +27,7 @@ interface User extends Document {
   password: string;
   phone: string;
   name: string;
+  role: Role;
   cart: Cart[];
   wishlist: Product[];
   orders: Order[];
@@ -40,6 +42,12 @@ const userSchema = new Schema<User>(
     name: { type: String, required: true },
     phone: { type: String, required: true },
     address: [{ type: Schema.Types.ObjectId, ref: "Address", require: true }],
+    role: {
+      type: String,
+      required: true,
+      enum: ["admin", "customer"],
+      default: Role.CUSOMER,
+    },
     cart: [
       {
         product: {
