@@ -29,7 +29,7 @@ export class ProductController {
     try {
       const input = <CreateProductDto["body"]>req.body;
       const result = await this.productService.createProduct(input);
-      return res.status(result.status).json(result);
+      return res.status(201).json(result);
     } catch (error) {
       next(error);
     }
@@ -39,7 +39,7 @@ export class ProductController {
     try {
       const query = <GetProductQueryDto["query"]>req.query;
       const result = await this.productService.getProducts(query);
-      return res.status(result.status).json(result);
+      return res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -49,7 +49,7 @@ export class ProductController {
     try {
       const { productId } = <GetProductDto["params"]>req.params;
       const result = await this.productService.getProductById(productId);
-      return res.status(result.status).json(result);
+      return res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -60,7 +60,7 @@ export class ProductController {
       const { productId } = <UpdateProductDto["params"]>req.params;
       const body = <UpdateProductDto["body"]>req.body;
       const result = await this.productService.updateProduct(productId, body);
-      return res.status(result.status).json(result);
+      return res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -70,7 +70,7 @@ export class ProductController {
     try {
       const { productId } = <GetProductDto["params"]>req.params;
       const result = await this.productService.deleteProduct(productId);
-      return res.status(result.status).json(result);
+      return res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -94,7 +94,7 @@ export class ProductController {
         config.amqplib.user_binding_key,
         JSON.stringify(payload)
       );
-      return res.status(result.status).json(result);
+      return res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -124,7 +124,7 @@ export class ProductController {
         config.amqplib.user_binding_key,
         JSON.stringify(payload)
       );
-      return res.status(result.status).json(result);
+      return res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -154,7 +154,7 @@ export class ProductController {
         config.amqplib.user_binding_key,
         JSON.stringify(payload)
       );
-      return res.status(result.status).json(result);
+      return res.status(200).json(result);
     } catch (error) {
       next(error);
     }

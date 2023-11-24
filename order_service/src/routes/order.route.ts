@@ -4,6 +4,7 @@ import { Express, Router } from "express";
 import { auth } from "../middlewares/auth";
 import { validationResource } from "../middlewares/validation-resource";
 import { createOrderSchema } from "../dtos/order.dto";
+import bodyParser from "body-parser";
 
 export class OrderRouter {
   public router: Router;
@@ -15,14 +16,23 @@ export class OrderRouter {
     this.getCartRouter();
     this.postCartRouter();
     this.getOrderRouter();
+    this.postCheckoutRouter();
+    this.postWebhook();
   }
 
   private getCartRouter() {
-    this.router.get(
-      "/cart",
-      auth,
-      validationResource(createOrderSchema),
-      this.orderController.getCart
+    this.router.get("/cart", auth, this.orderController.getCart);
+  }
+
+  private postCheckoutRouter() {
+    this.router.post("/checkout", auth, this.orderController.checkout);
+  }
+
+  private postWebhook() {
+    this.router.post(
+      "/webhook",
+      bodyParser.raw({ type: "application/json" }),
+      this.orderController.webhook
     );
   }
 

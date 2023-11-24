@@ -14,13 +14,15 @@ export class OrderController {
     this.createOrder = this.createOrder.bind(this);
     this.getCart = this.getCart.bind(this);
     this.getOrders = this.getOrders.bind(this);
+    this.checkout = this.checkout.bind(this);
+    this.webhook = this.webhook.bind(this);
   }
 
   async createOrder(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.userId;
-      const { txnNumber } = <CreateOrderDto["body"]>req.body;
-      const result = await this.orderService.placeOrder(userId, txnNumber);
+      const { txnId } = <CreateOrderDto["body"]>req.body;
+      const result = await this.orderService.placeOrder(userId, txnId);
       const payload = {
         event: "CREATE_ORDER",
         data: {
@@ -33,7 +35,7 @@ export class OrderController {
         config.amqplib.user_binding_key,
         JSON.stringify(payload)
       );
-      return res.status(result.status).json(result);
+      return res.status(201).json(result);
     } catch (error) {
       next(error);
     }
@@ -43,7 +45,7 @@ export class OrderController {
     try {
       const userId = req.userId;
       const result = await this.orderService.getOrders(userId);
-      return res.status(result.status).json(result);
+      return res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -53,7 +55,29 @@ export class OrderController {
     try {
       const userId = req.userId;
       const result = await this.orderService.getCartItems(userId);
-      return res.status(result.status).json(result);
+      return res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async checkout(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.userId;
+      const result = await this.orderService.checkout(userId);
+      return res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async webhook(req: Request, res: Response, next: NextFunction) {
+    try {
+      const rawBody = req.body as Buffer;
+      const sig = req.headers["stripe-signature"] as string;
+      console.log(rawBody, sig);
+      const result = await this.orderService.webhook(rawBody, sig);
+      return res.status(200).json(result);
     } catch (error) {
       next(error);
     }

@@ -1,6 +1,5 @@
 import * as amqp from "amqplib";
 import config from "../config";
-import { ApiError } from "./api-error";
 import { OrderService } from "../services/order.service";
 
 export const connect = async () => {

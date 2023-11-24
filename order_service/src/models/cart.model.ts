@@ -3,7 +3,7 @@ import { Product } from "./order.model";
 
 const Schema = mongoose.Schema;
 
-interface Cart {
+export interface Cart {
   userId: string;
   items: {
     product: Product;

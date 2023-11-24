@@ -1,6 +1,5 @@
 import * as amqp from "amqplib";
 import config from "../config";
-import { ApiError } from "./api-error";
 
 export const connect = async () => {
   const connection = await amqp.connect(config.amqplib.message_broker_url);

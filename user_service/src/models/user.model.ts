@@ -97,7 +97,6 @@ const userSchema = new Schema<User>(
   {
     toJSON: {
       transform(doc, ret) {
-        delete ret.password;
         delete ret.__v;
       },
     },

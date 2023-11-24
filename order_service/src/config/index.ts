@@ -40,4 +40,11 @@ export default {
     password: process.env.REDIS_PASSWORD!,
     uri: process.env.REDIS_URI,
   },
+  stripe: {
+    public_key: process.env.PUBLIC_KEY!,
+    secret_key: process.env.SECRET_KEY!,
+    successUrl: process.env.SUCCESS_URL!,
+    cancelUrl: process.env.CANCEL_URL!,
+    webhook_secret: process.env.WEBHOOK_SECRET!,
+  },
 };

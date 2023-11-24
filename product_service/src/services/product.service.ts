@@ -1,11 +1,12 @@
 import { ParsedOptions } from "qs-to-mongo/lib/query/options-to-mongo";
 import { CreateProductInput, UpdateProductInput } from "../custom-type";
 import { ProductRepository } from "../repositories/product.repository";
-import { ApiError } from "../utils/api-error";
 import { formateData } from "../utils/formate-data";
 import { Category } from "../models/product.model";
 import { GetProductDto, GetProductQueryDto } from "../dtos/product.dto";
 import qsToMongo from "qs-to-mongo";
+import { BadRequestException, NotFoundException } from "../HttpException";
+import client from "../redis";
 
 export class ProductService {
   private productRepository: ProductRepository;
@@ -19,10 +20,11 @@ export class ProductService {
       const product = await this.productRepository.createProduct(data);
 
       if (!product) {
-        throw new ApiError(false, 400, "create product fail");
+        throw new BadRequestException("create product fail");
       }
 
-      return formateData(true, 201, "create product successfully", product);
+      await client.set(`product:${product._id}`, JSON.stringify(product));
+      return formateData(true, "create product successfully", product);
     } catch (error) {
       throw error;
     }
@@ -30,6 +32,14 @@ export class ProductService {
 
   async getProducts(query: any) {
     try {
+      const cacheData = await client.get(`product-${query}`);
+      if (cacheData) {
+        return formateData(
+          true,
+          "Fetch product successfully",
+          JSON.parse(cacheData).products
+        );
+      }
       const { criteria, options, links } = qsToMongo(query);
       console.log(qsToMongo(query));
       const products = await this.productRepository.getProducts(
@@ -38,15 +48,12 @@ export class ProductService {
       );
 
       if (products.total === 0) {
-        throw new ApiError(false, 404, "products not found");
+        throw new NotFoundException("products not found");
       }
 
-      return formateData(
-        true,
-        200,
-        "Fetch product successfully",
-        products.products
-      );
+      await client.set(`product-${query}`, JSON.stringify(products));
+
+      return formateData(true, "Fetch product successfully", products.products);
     } catch (error) {
       throw error;
     }
@@ -54,42 +61,51 @@ export class ProductService {
 
   async getProductById(id: string) {
     try {
+      const cacheData = await client.get(`product:${id}`);
+      if (cacheData) {
+        return formateData(
+          true,
+          "fetch product by id successfully",
+          JSON.parse(cacheData)
+        );
+      }
       const product = await this.productRepository.getProductById(id);
 
       if (!product) {
-        throw new ApiError(false, 404, "product not found");
+        throw new NotFoundException("product not found");
       }
 
-      return formateData(
-        true,
-        200,
-        "fetch product by id successfully",
-        product
-      );
+      await client.set(`product:${product._id}`, JSON.stringify(product));
+
+      return formateData(true, "fetch product by id successfully", product);
     } catch (error) {
       throw error;
     }
   }
 
   async getProductByCategory(category: Category) {
-    try {
-      const product = await this.productRepository.getProductByCategory(
-        category
-      );
-
-      if (!product.length) {
-        throw new ApiError(false, 404, "product not found");
-      }
-
-      return formateData(
-        true,
-        200,
-        "fetch product by id successfully",
-        product
-      );
-    } catch (error) {
-      throw error;
-    }
+    // try {
+    //   const products = []
+    //   await client.scan('0', )
+    //   const cacheData = await client.get(`products:${category}`);
+    //   if (cacheData) {
+    //     return formateData(
+    //       true,
+    //       "fetch product by id successfully",
+    //       JSON.parse(cacheData)
+    //     );
+    //   }
+    //   const products = await this.productRepository.getProductByCategory(
+    //     category
+    //   );
+    //   if (!products.length) {
+    //     throw new NotFoundException("product not found");
+    //   }
+    //   await client.set(`products:${category}`, JSON.stringify(products));
+    //   return formateData(true, "fetch product by id successfully", products);
+    // } catch (error) {
+    //   throw error;
+    // }
   }
 
   async updateProduct(productId: string, data: UpdateProductInput) {
@@ -97,7 +113,7 @@ export class ProductService {
       const product = await this.productRepository.getProductById(productId);
 
       if (!product) {
-        throw new ApiError(false, 404, "product not found");
+        throw new NotFoundException("product not found");
       }
 
       const updatedProduct = await this.productRepository.updateProduct(
@@ -105,12 +121,10 @@ export class ProductService {
         data
       );
 
-      return formateData(
-        true,
-        200,
-        "update product successfully",
-        updatedProduct
-      );
+      await client.set(`product:${productId}`, JSON.stringify(product));
+      await client.set(`products:${product.category}`, JSON.stringify(product));
+
+      return formateData(true, "update product successfully", updatedProduct);
     } catch (error) {
       throw error;
     }
@@ -121,10 +135,10 @@ export class ProductService {
       const product = await this.productRepository.deleteProduct(productId);
 
       if (!product) {
-        throw new ApiError(false, 404, "product not found");
+        throw new NotFoundException("product not found");
       }
 
-      return formateData(true, 200, "delete product successfully", null);
+      return formateData(true, "delete product successfully", null);
     } catch (error) {
       throw error;
     }

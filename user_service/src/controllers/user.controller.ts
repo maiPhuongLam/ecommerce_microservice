@@ -21,7 +21,7 @@ export class UserController {
     try {
       const body = <RegisterDto["body"]>req.body;
       const result = await this.userService.register(body);
-      return res.status(result.status).json(result);
+      return res.status(201).json(result);
     } catch (error) {
       next(error);
     }
@@ -31,7 +31,7 @@ export class UserController {
     try {
       const body = <LoginDto["body"]>req.body;
       const result = await this.userService.login(body.email, body.password);
-      return res.status(result.status).json(result);
+      return res.status(201).json(result);
     } catch (error) {
       next(error);
     }
@@ -42,7 +42,7 @@ export class UserController {
       const body = <CreateAddressDto["body"]>req.body;
       const userId = req.userId;
       const result = await this.userService.createAddress(userId, body);
-      return res.status(result.status).json(result);
+      return res.status(201).json(result);
     } catch (error) {
       next(error);
     }
@@ -53,7 +53,7 @@ export class UserController {
       const { addressId } = <DelteAddressDto["params"]>req.params;
       const userId = req.userId;
       const result = await this.userService.deleteAddress(userId, addressId);
-      return res.status(result.status).json(result);
+      return res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -63,7 +63,7 @@ export class UserController {
     try {
       const { userId } = <GetProfileDto["params"]>req.params;
       const result = await this.userService.getProfile(userId);
-      return res.status(result.status).json(result);
+      return res.status(200).json(result);
     } catch (error) {
       next(error);
     }

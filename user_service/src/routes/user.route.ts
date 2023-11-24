@@ -9,7 +9,6 @@ import {
 import { createAddressSchema, deleteAddressSchema } from "../dtos/address.dto";
 import { auth } from "../middlewares/auth";
 import { Channel } from "amqplib";
-
 import { Router } from "express";
 
 export class UserRouter {
@@ -22,6 +21,7 @@ export class UserRouter {
     this.loginRouter();
     this.registerRouter();
     this.postAddressRouter();
+    this.deleteAddressRouter();
     this.getUserRouter();
   }
 
@@ -42,6 +42,15 @@ export class UserRouter {
   }
 
   private postAddressRouter() {
+    this.router.post(
+      "/address/",
+      auth,
+      validationResource(createAddressSchema),
+      this.userController.createAddress
+    );
+  }
+
+  private deleteAddressRouter() {
     this.router.delete(
       "/address/:addressId",
       auth,

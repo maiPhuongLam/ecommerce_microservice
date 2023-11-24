@@ -1,9 +1,9 @@
-import { TypeOf, number, object } from "zod";
+import { TypeOf, string, object } from "zod";
 
 const createOrderSchema = object({
   body: object({
-    txnNumber: number({
-      required_error: "txnNumber is required",
+    txnId: string({
+      required_error: "string is required",
     }),
   }),
 });
