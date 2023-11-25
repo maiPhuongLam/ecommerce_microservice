@@ -1,7 +1,7 @@
 import * as jwt from "jsonwebtoken";
 import config from "../config";
 export const generateToken = async (
-  payload: { _id: string; email: string },
+  payload: { _id: string; role: string },
   key: string
 ) => {
   const token = jwt.sign(payload, key, {
@@ -14,7 +14,7 @@ export const generateToken = async (
 export const validateToken = async (token: string, key: string) => {
   const payload = (await jwt.verify(token, key)) as {
     _id: string;
-    email: string;
+    role: string;
   };
   return payload;
 };

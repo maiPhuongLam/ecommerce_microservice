@@ -14,7 +14,7 @@ export class ProductRepository {
     try {
       return await this.productModel.create(data);
     } catch (error) {
-      throw new BadRequestException("create product fail");
+      throw error;
     }
   }
 
@@ -39,7 +39,7 @@ export class ProductRepository {
 
       return { total, products };
     } catch (error) {
-      throw new BadRequestException("get products fail");
+      throw error;
     }
   }
 
@@ -47,7 +47,7 @@ export class ProductRepository {
     try {
       return await this.productModel.findById(productId);
     } catch (error) {
-      throw new BadRequestException("get product by id fail");
+      throw error;
     }
   }
 
@@ -55,7 +55,7 @@ export class ProductRepository {
     try {
       return await this.productModel.find({ category });
     } catch (error) {
-      throw new BadRequestException("get product by category fail");
+      throw error;
     }
   }
 
@@ -66,23 +66,26 @@ export class ProductRepository {
         data
       );
       if (product) {
+        await product.save();
         return await this.productModel.findById(productId);
       }
-      throw new NotFoundException("product not foumd");
+      throw new NotFoundException("product not found");
     } catch (error) {
-      throw new BadRequestException("update product fail");
+      throw error;
     }
   }
 
   async deleteProduct(productId: string) {
     try {
       const product = await this.getProductById(productId);
+
       if (product) {
         return await this.productModel.deleteOne({ _id: product._id });
       }
+      console.log(product);
       throw new NotFoundException("product not found");
     } catch (error) {
-      throw new BadRequestException("delte product fail");
+      throw error;
     }
   }
 }

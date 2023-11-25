@@ -7,7 +7,7 @@ import { GetProductDto, GetProductQueryDto } from "../dtos/product.dto";
 import qsToMongo from "qs-to-mongo";
 import { BadRequestException, NotFoundException } from "../HttpException";
 import client from "../redis";
-
+import { RedisClientType } from "redis";
 export class ProductService {
   private productRepository: ProductRepository;
 
@@ -22,17 +22,24 @@ export class ProductService {
       if (!product) {
         throw new BadRequestException("create product fail");
       }
-
-      await client.set(`product:${product._id}`, JSON.stringify(product));
+      await this.deleteKeysByPattern("filteredProducts");
       return formateData(true, "create product successfully", product);
     } catch (error) {
       throw error;
     }
   }
 
-  async getProducts(query: any) {
+  async getProducts(query: {
+    search?: string | undefined;
+    category?: string | undefined;
+    sort?: string | undefined;
+    limit?: string | undefined;
+    skip?: string | undefined;
+  }) {
     try {
-      const cacheData = await client.get(`product-${query}`);
+      const { search, category, sort, limit, skip } = query;
+      const cacheKey = `filteredProducts:${search}_${category}_${sort}_${limit}_${skip}`;
+      const cacheData = await client.get(cacheKey);
       if (cacheData) {
         return formateData(
           true,
@@ -51,7 +58,7 @@ export class ProductService {
         throw new NotFoundException("products not found");
       }
 
-      await client.set(`product-${query}`, JSON.stringify(products));
+      await client.set(cacheKey, JSON.stringify(products));
 
       return formateData(true, "Fetch product successfully", products.products);
     } catch (error) {
@@ -83,31 +90,6 @@ export class ProductService {
     }
   }
 
-  async getProductByCategory(category: Category) {
-    // try {
-    //   const products = []
-    //   await client.scan('0', )
-    //   const cacheData = await client.get(`products:${category}`);
-    //   if (cacheData) {
-    //     return formateData(
-    //       true,
-    //       "fetch product by id successfully",
-    //       JSON.parse(cacheData)
-    //     );
-    //   }
-    //   const products = await this.productRepository.getProductByCategory(
-    //     category
-    //   );
-    //   if (!products.length) {
-    //     throw new NotFoundException("product not found");
-    //   }
-    //   await client.set(`products:${category}`, JSON.stringify(products));
-    //   return formateData(true, "fetch product by id successfully", products);
-    // } catch (error) {
-    //   throw error;
-    // }
-  }
-
   async updateProduct(productId: string, data: UpdateProductInput) {
     try {
       const product = await this.productRepository.getProductById(productId);
@@ -120,10 +102,9 @@ export class ProductService {
         product._id.toString(),
         data
       );
-
-      await client.set(`product:${productId}`, JSON.stringify(product));
-      await client.set(`products:${product.category}`, JSON.stringify(product));
-
+      console.log(updatedProduct);
+      await client.set(`product:${productId}`, JSON.stringify(updatedProduct));
+      await this.deleteKeysByPattern("filteredProducts");
       return formateData(true, "update product successfully", updatedProduct);
     } catch (error) {
       throw error;
@@ -137,10 +118,22 @@ export class ProductService {
       if (!product) {
         throw new NotFoundException("product not found");
       }
-
+      await client.del(`product:${productId}`);
+      await this.deleteKeysByPattern("filteredProducts");
       return formateData(true, "delete product successfully", null);
     } catch (error) {
       throw error;
     }
+  }
+
+  async deleteKeysByPattern(pattern: string) {
+    const keys = await client.keys(`*${pattern}*`);
+    console.log(keys);
+    keys.forEach((key) => {
+      client
+        .del(key)
+        .then((res) => console.log(`Deleted Redis cache for key: ${key}`))
+        .catch((err) => console.log(err));
+    });
   }
 }

@@ -4,6 +4,7 @@ import { OrderRepository } from "../repositories/order.repository";
 import { formateData } from "../utils/formate-data";
 import config from "../config";
 import { BadRequestException, NotFoundException } from "../HttpException";
+import client from "../reids";
 
 export class OrderService {
   private oderRepository: OrderRepository;
@@ -18,6 +19,14 @@ export class OrderService {
 
   async getOrders(userId: string) {
     try {
+      const cacheData = await client.get(`user:${userId}`);
+      if (cacheData) {
+        return formateData(
+          true,
+          "fetch cart items successfully",
+          JSON.parse(cacheData).orders
+        );
+      }
       const orders = await this.oderRepository.getOrdersByUserId(userId);
       return formateData(true, "fetch orders successfully", orders);
     } catch (error) {
@@ -27,8 +36,20 @@ export class OrderService {
 
   async getCartItems(userId: string) {
     try {
-      const carts = await this.oderRepository.getCartByUserId(userId);
-      return formateData(true, "fetch cart items successfully", carts);
+      const cacheData = await client.get(`user:${userId}`);
+      if (cacheData) {
+        return formateData(
+          true,
+          "fetch cart items successfully",
+          JSON.parse(cacheData).cart
+        );
+      }
+      const cart = await this.oderRepository.getCartByUserId(userId);
+      if (!cart) {
+        throw new NotFoundException("cart not found");
+      }
+      await client.set(`cart:${cart.userId}`, JSON.stringify(cart));
+      return formateData(true, "fetch cart items successfully", cart);
     } catch (error) {
       throw error;
     }

@@ -57,7 +57,7 @@ export class UserService {
         throw new UnauthorizedException("password is incorrect");
       }
       const token = await generateToken(
-        { _id: user._id.toString(), email: user.email },
+        { _id: user._id.toString(), role: user.role },
         config.jwt.accessKey
       );
       return formateData(true, "user login success", token);
