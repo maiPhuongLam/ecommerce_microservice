@@ -7,6 +7,7 @@ export const adminRole = async (
   next: NextFunction
 ) => {
   const role = req.userRole;
+  console.log(req.userId);
   if (role !== Role.ADMIN) {
     return res.status(401).json({ success: false, message: "Not authorized" });
   }

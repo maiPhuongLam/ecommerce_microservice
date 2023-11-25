@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import { validateToken } from "../utils/auth-token";
 import config from "../config";
+import { Role } from "../custom-type";
 export const auth = async (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.get("Authorization");
 
@@ -17,7 +18,7 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
     decode = (await validateToken(token, config.jwt.accessKey)) as {
       _id: string;
-      email: string;
+      role: Role;
     };
   } catch (error) {
     return res
@@ -32,5 +33,6 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
   }
 
   req.userId = decode._id;
+  req.userRole = decode.role;
   next();
 };
