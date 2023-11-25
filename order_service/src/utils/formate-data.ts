@@ -1,5 +1,5 @@
-export const formateData = (success: boolean, message: string, data: any) => ({
-  success,
+export const formateData = (message: string, data: any) => ({
+  success: true,
   message,
   data,
 });

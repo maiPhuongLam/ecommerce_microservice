@@ -39,7 +39,7 @@ export class UserService {
         `user:${newUser._id.toString()}`,
         JSON.stringify(newUser)
       );
-      return formateData(true, "user register success", newUser);
+      return formateData("user register success", newUser);
     } catch (error) {
       throw error;
     }
@@ -60,7 +60,7 @@ export class UserService {
         { _id: user._id.toString(), role: user.role },
         config.jwt.accessKey
       );
-      return formateData(true, "user login success", token);
+      return formateData("user login success", token);
     } catch (error) {
       throw error;
     }
@@ -79,7 +79,7 @@ export class UserService {
         `user:${addressResult._id}`,
         JSON.stringify(addressResult)
       );
-      return formateData(true, "create address success", addressResult.address);
+      return formateData("create address success", addressResult.address);
     } catch (error) {
       throw error;
     }
@@ -98,7 +98,7 @@ export class UserService {
         `user:${addressResult._id}`,
         JSON.stringify(addressResult)
       );
-      return formateData(true, "delete address success", null);
+      return formateData("delete address success", null);
     } catch (error) {
       throw error;
     }
@@ -117,7 +117,7 @@ export class UserService {
         throw new NotFoundException("User not found");
       }
 
-      return formateData(true, "Fetch Profile success", userProfile);
+      return formateData("Fetch Profile success", userProfile);
     } catch (error) {
       throw error;
     }
@@ -137,7 +137,6 @@ export class UserService {
         JSON.stringify(wishlistResult)
       );
       return formateData(
-        true,
         "add item to wishlist successfully",
         wishlistResult.wishlist
       );
@@ -163,7 +162,7 @@ export class UserService {
         throw new BadRequestException("Add item to cart fail");
       }
       await client.set(`user:${cartResult._id}`, JSON.stringify(cartResult));
-      return formateData(true, "add item to cart sucessfully", cartResult.cart);
+      return formateData("add item to cart sucessfully", cartResult.cart);
     } catch (error) {
       throw error;
     }
@@ -176,7 +175,7 @@ export class UserService {
         throw new BadRequestException("create order fail");
       }
       await client.set(`user:${orderResult._id}`, JSON.stringify(orderResult));
-      return formateData(true, "create order successfully", orderResult.orders);
+      return formateData("create order successfully", orderResult.orders);
     } catch (error) {
       throw error;
     }

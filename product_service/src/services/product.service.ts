@@ -23,7 +23,7 @@ export class ProductService {
         throw new BadRequestException("create product fail");
       }
       await this.deleteKeysByPattern("filteredProducts");
-      return formateData(true, "create product successfully", product);
+      return formateData("create product successfully", product);
     } catch (error) {
       throw error;
     }
@@ -42,7 +42,6 @@ export class ProductService {
       const cacheData = await client.get(cacheKey);
       if (cacheData) {
         return formateData(
-          true,
           "Fetch product successfully",
           JSON.parse(cacheData).products
         );
@@ -60,7 +59,7 @@ export class ProductService {
 
       await client.set(cacheKey, JSON.stringify(products));
 
-      return formateData(true, "Fetch product successfully", products.products);
+      return formateData("Fetch product successfully", products.products);
     } catch (error) {
       throw error;
     }
@@ -71,7 +70,6 @@ export class ProductService {
       const cacheData = await client.get(`product:${id}`);
       if (cacheData) {
         return formateData(
-          true,
           "fetch product by id successfully",
           JSON.parse(cacheData)
         );
@@ -84,7 +82,7 @@ export class ProductService {
 
       await client.set(`product:${product._id}`, JSON.stringify(product));
 
-      return formateData(true, "fetch product by id successfully", product);
+      return formateData("fetch product by id successfully", product);
     } catch (error) {
       throw error;
     }
@@ -105,7 +103,7 @@ export class ProductService {
       console.log(updatedProduct);
       await client.set(`product:${productId}`, JSON.stringify(updatedProduct));
       await this.deleteKeysByPattern("filteredProducts");
-      return formateData(true, "update product successfully", updatedProduct);
+      return formateData("update product successfully", updatedProduct);
     } catch (error) {
       throw error;
     }
@@ -120,7 +118,7 @@ export class ProductService {
       }
       await client.del(`product:${productId}`);
       await this.deleteKeysByPattern("filteredProducts");
-      return formateData(true, "delete product successfully", null);
+      return formateData("delete product successfully", null);
     } catch (error) {
       throw error;
     }

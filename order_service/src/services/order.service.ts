@@ -22,13 +22,12 @@ export class OrderService {
       const cacheData = await client.get(`user:${userId}`);
       if (cacheData) {
         return formateData(
-          true,
           "fetch cart items successfully",
           JSON.parse(cacheData).orders
         );
       }
       const orders = await this.oderRepository.getOrdersByUserId(userId);
-      return formateData(true, "fetch orders successfully", orders);
+      return formateData("fetch orders successfully", orders);
     } catch (error) {
       throw error;
     }
@@ -39,7 +38,6 @@ export class OrderService {
       const cacheData = await client.get(`user:${userId}`);
       if (cacheData) {
         return formateData(
-          true,
           "fetch cart items successfully",
           JSON.parse(cacheData).cart
         );
@@ -49,7 +47,7 @@ export class OrderService {
         throw new NotFoundException("cart not found");
       }
       await client.set(`cart:${cart.userId}`, JSON.stringify(cart));
-      return formateData(true, "fetch cart items successfully", cart);
+      return formateData("fetch cart items successfully", cart);
     } catch (error) {
       throw error;
     }
@@ -62,7 +60,7 @@ export class OrderService {
       if (!order) {
         throw new BadRequestException("create order fail");
       }
-      return formateData(true, "create order successfully", order);
+      return formateData("create order successfully", order);
     } catch (error) {
       throw error;
     }
@@ -81,7 +79,7 @@ export class OrderService {
         qty,
         isRemove
       );
-      return formateData(true, "add cart items successfully", cartResult);
+      return formateData("add cart items successfully", cartResult);
     } catch (error) {
       throw error;
     }
@@ -131,7 +129,7 @@ export class OrderService {
         cancel_url: config.stripe.cancelUrl,
       });
 
-      return formateData(true, "Payment", {
+      return formateData("Payment", {
         sessionId: session.id,
         url: session.url,
       });
@@ -161,7 +159,7 @@ export class OrderService {
         default:
           console.log(`Unhandled event type ${event.type}`);
       }
-      return formateData(true, "test", event.data.object);
+      return formateData("test", event.data.object);
     } catch (error) {
       throw error;
     }
